@@ -6,33 +6,58 @@ from mat_params import MatParams, ElasticParams, PlasticParams
 from Model import Model, Plastic, Strain
 
 
-# ---------------------------------------------------------------------------
-# Phase 0.3 / 1.3 — material parameters (Table 1, Hill identification eqs. 7-10)
-# ---------------------------------------------------------------------------
+
+#task specific param vaLUES: 
+E = 200000
+nu = .3
+sy11 = 580
+sy22 = 510
+sy33 = 460
+sy12 = 590
+sy23 = 600
+sy13 = 550
+
+
+
+
+#-------------------------------------------
+#defining material parameters
+#-------------------------------------------
 def hill_params_from_yield_stresses(sy11, sy22, sy33, sy12, sy23, sy13) -> PlasticParams:
-    pass  # not implemented yet
+    F = .5 * (1/sy11**2 + 1/sy22**2 - 1/sy33**2)
+    G = .5 * (1/sy11**2 + 1/sy33**2 - 1/sy22**2)
+    H = .5 * (1/sy22**2 + 1/sy33**2 - 1/sy11**2)
+    L = 1/(2 * sy12**2)
+    M = 1/(2 * sy23**2)
+    N = 1/(2 * sy13**2)
+    return PlasticParams(F=F, G=G, H=H, L=L, M=M, N=N)
+
+def elastic_params_from_E_nu(E, nu) -> ElasticParams:
+    return ElasticParams(E=E, nu=nu)
 
 
-def build_material_params() -> MatParams:
-    # E, nu, sigma_y^ij per Table 1 -> ElasticParams + PlasticParams
-    pass  # not implemented yet
+#ToDo
+def build_von_mises_params(sigma_y) -> PlasticParams:
+    F = G = H = 1/(2 * sigma_y**2)
+    L = M = N = 3/(2 * sigma_y**2)
+    return PlasticParams(F=F, G=G, H=H, L=L, M=M, N=N)
+
+hillMatParams =  MatParams(elastic_params=elastic_params_from_E_nu(E, nu), plastic_params=hill_params_from_yield_stresses(sy11, sy22, sy33, sy12, sy23, sy13))
 
 
-def build_von_mises_params(sigma_y) -> MatParams:
-    # F=G=H=1/(2 sy^2), L=M=N=3/(2 sy^2) -> Hill machinery recovers von Mises (Phase 4.5)
-    pass  # not implemented yet
 
 
-# ---------------------------------------------------------------------------
-# Phase 3 — equi-biaxial load history: eps_11(t) = eps_22(t)
-# ---------------------------------------------------------------------------
-def ramp_load(t):
+
+#defining löoads
+def ramp_load(t)-> float:
     # 0 -> 0.05 over t in [0, 100]
-    pass  # not implemented yet
+    m = 0.05 / 100
+    return m * t
+    pass 
 
 
-def cyclic_load(t):
-    # triangular wave +0.05 / -0.05 over t in [0, 400]
+def cyclic_load(t)-> float:
+    
     pass  # not implemented yet
 
 
@@ -148,7 +173,7 @@ def plot_lateral_strain(history: History):
 
 
 def main():
-    params = build_material_params()
+    params = hillMatParams
     model = Model(params)
     driver = Driver(model, prescribed_components={0, 1})
 

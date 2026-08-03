@@ -8,17 +8,28 @@ class Elastic:
     def __init__(self, params: ElasticParams):
         self.params = params
 
-    def stiffness_tensor(self):
-        # E^e as 6x6 matrix in the project's component order (11,22,33,12,23,13)
-        pass  # not implemented yet
+    def stiffness_tensor(self) -> np.ndarray:
+   
+        E = self.params.E
+        nu = self.params.nu
 
-    def compliance_tensor(self):
-        # [E^e]^-1
-        pass  # not implemented yet
+        lam = E * nu / ((1 + nu) * (1 - 2 * nu))
+        mu = E / (2 * (1 + nu))
 
-    def stress(self, eps_e):
+        E_tens = np.array([[lam + 2*mu, lam,        lam,        0,  0,  0],
+                            [lam,        lam + 2*mu, lam,        0,  0,  0],
+                            [lam,        lam,        lam + 2*mu, 0,  0,  0],
+                            [0,          0,          0,          mu, 0,  0],
+                            [0,          0,          0,          0,  mu, 0],
+                            [0,          0,          0,          0,  0,  mu]])
+        return E_tens
+
+    def compliance_tensor(self) -> np.ndarray:
+        return np.linalg.inv(self.stiffness_tensor())
+
+    def stress(self, eps_e) -> np.ndarray:
         # sigma = E^e : eps_e
-        pass  # not implemented yet
+        return self.stiffness_tensor() @ eps_e
 
 
 '''Hill's anisotropic yield criterion (F, G, H, L, M, N)'''
