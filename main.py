@@ -1,4 +1,4 @@
-# Teo Tassa 18.07.2026
+# Teo Tassa 03.08.2026
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -53,12 +53,11 @@ def ramp_load(t)-> float:
     # 0 -> 0.05 over t in [0, 100]
     m = 0.05 / 100
     return m * t
-    pass 
 
 
 def cyclic_load(t)-> float:
-    
-    pass  # not implemented yet
+    f = 1 #frequency [1/s]
+    return 0 #placholder
 
 
 # ---------------------------------------------------------------------------

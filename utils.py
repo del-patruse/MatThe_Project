@@ -11,23 +11,21 @@ def identity_2nd():
 
 
 def identity_4th_sym() -> np.ndarray:
-    # I^sym_ijkl = 1/2 (delta_ik delta_jl + delta_il delta_jk)
+
     I = np.eye(3)
     return 0.5 * (np.einsum('ik,jl->ijkl', I, I) + np.einsum('il,jk->ijkl', I, I))
 
 
 def identity_4th_sym_dev() -> np.ndarray:
-    # Deviatoric projector: I^sym_dev = I^sym - 1/3 (I x I)
     return identity_4th_sym() - (1.0 / 3.0) * outer_2nd(identity_2nd(), identity_2nd())
 
 
 def outer_2nd(A: np.ndarray, B: np.ndarray) -> np.ndarray:
-    # Dyadic product of two 2nd-order tensors -> 4th-order tensor (A x B)_ijkl = A_ij B_kl
     return np.einsum('ij,kl->ijkl', A, B)
 
 
 def double_contraction_2nd(A: np.ndarray, B: np.ndarray) -> float:
-    # A : B = A_ij B_ij
+   
     return float(np.tensordot(A, B, axes=2))
 
 
@@ -79,6 +77,13 @@ def double_contraction_voigt6(vA: np.ndarray, vB: np.ndarray) -> float:
     return float(normal + 2.0 * shear)
 
 
-def quadratic_form(v: np.ndarray, M: np.ndarray) -> float:
-    # v^T M v
-    return float(v @ M @ v)
+def double_contraction_voigt6_4th_2nd(C_voigt: np.ndarray, v: np.ndarray) -> np.ndarray:
+    # (C : A) in Voigt form: a 6x6 Voigt matrix (e.g. stiffness_tensor(), G_tensor)
+    # already encodes its own shear factors, so this is a plain matrix-vector product.
+    return C_voigt.dot(v)
+
+
+def quadratic_form_voigt6(v: np.ndarray, C_voigt: np.ndarray) -> float:
+    # v : C : v for a 6-vector of pure tensor components and 6x6 Voigt matrix C.
+    return float(v.dot(double_contraction_voigt6_4th_2nd(C_voigt, v)))
+
