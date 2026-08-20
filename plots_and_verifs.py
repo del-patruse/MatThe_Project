@@ -52,7 +52,7 @@ def plot_load_history(history: History):
     plt.xlabel("t")
     plt.ylabel("prescribed strain")
     plt.legend()
-    plt.title("Load history")
+    plt.title("Load history over time")
     plt.show()
 
 
@@ -65,7 +65,7 @@ def plot_stress_response(history: History):
     plt.xlabel("t")
     plt.ylabel("stress")
     plt.legend()
-    plt.title("Stress response")
+    plt.title("Stress response over time")
     plt.show()
 
 
@@ -79,7 +79,7 @@ def plot_plastic_strains(history: History):
     plt.xlabel("t")
     plt.ylabel("plastic strain")
     plt.legend()
-    plt.title("Plastic strains")
+    plt.title("Plastic strains over time")
     plt.show()
 
 
@@ -96,25 +96,6 @@ def plot_stress_strain(history: History):
     plt.show()
 
 
-def plot_yield_locus(history: History, plastic: Plastic):
-    _, _, _, sigma, _, _, _, _ = history.to_arrays()
-
-    bound = 1.3 * max(np.max(np.abs(sigma[:, 0, 0])), np.max(np.abs(sigma[:, 1, 1])), 1.0)
-    s11 = np.linspace(-bound, bound, 200)
-    s22 = np.linspace(-bound, bound, 200)
-    S11, S22 = np.meshgrid(s11, s22)
-    zeros = np.zeros_like(S11)
-    V = np.stack([S11, S22, zeros, zeros, zeros, zeros], axis=-1)
-    Phi = np.einsum('...i,ij,...j->...', V, plastic.G_tensor, V) - 1.0
-
-    plt.figure()
-    plt.contour(S11, S22, Phi, levels=[0.0])
-    plt.plot(sigma[:, 0, 0], sigma[:, 1, 1], 'r.-', label="stress path")
-    plt.xlabel("sigma11")
-    plt.ylabel("sigma22")
-    plt.legend()
-    plt.title("Yield locus")
-    plt.show()
 
 
 def plot_lateral_contraction(history: History):
@@ -125,5 +106,5 @@ def plot_lateral_contraction(history: History):
     plt.xlabel("t")
     plt.ylabel("eps33")
     plt.legend()
-    plt.title("Lateral contraction ")
+    plt.title("Lateral contraction over time")
     plt.show()

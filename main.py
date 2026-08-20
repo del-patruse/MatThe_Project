@@ -6,7 +6,7 @@ from mat_params import MatParams
 from Model import Model
 from Solver import hill_params_from_yield_stresses, elastic_params_from_E_nu, build_von_mises_params, Driver
 from plots_and_verifs import (verify_von_mises_recovery, plot_load_history, plot_stress_response,
-                               plot_plastic_strains, plot_stress_strain, plot_yield_locus)
+                               plot_plastic_strains, plot_stress_strain, plot_lateral_contraction)
 
 
 
@@ -22,7 +22,7 @@ task = 2
 #--------------------------------------
 #deifnig the load type
 #--------------------------------------
-load_type = "ramp" # "ramp" or "cyclic"#
+load_type = "cyclic" # "ramp" or "cyclic"#
 #--------------------------------------
 
 
@@ -96,36 +96,30 @@ def cyclic_load(t)-> float:
 
 
 
-def main():
-    params = hillMatParams
-    model = Model(params)
-    driver = Driver(model, prescribed_components={0, 1})
+params = hillMatParams
+model = Model(params)
+driver = Driver(model, prescribed_components={0, 1})
 
-    #run the sim
-    match load_type:
-                    case "ramp":
-                        history = driver.run(ramp_load, time_points=time_points)
-                    case "cyclic":
-                        history = driver.run(cyclic_load, time_points=time_points)
-
-    match task:         
-        case 1:
-            vm_model = Model(misesMatParams)
-            match load_type:
+#run the sim
+match load_type:
                 case "ramp":
-                    vm_history = Driver(vm_model, prescribed_components={0, 1}).run(ramp_load, time_points=time_points)
+                    history = driver.run(ramp_load, time_points=time_points)
                 case "cyclic":
-                    vm_history = Driver(vm_model, prescribed_components={0, 1}).run(cyclic_load, time_points=time_points)
-            verify_von_mises_recovery(history, vm_history)
+                    history = driver.run(cyclic_load, time_points=time_points)
 
-        case 2:
-            plot_load_history(history)
-            plot_stress_response(history)
-            plot_plastic_strains(history)
-            plot_stress_strain(history)
-            plot_yield_locus(history, model.plastic)
+match task:         
+    case 1:
+        vm_model = Model(misesMatParams)
+        match load_type:
+            case "ramp":
+                vm_history = Driver(vm_model, prescribed_components={0, 1}).run(ramp_load, time_points=time_points)
+            case "cyclic":
+                vm_history = Driver(vm_model, prescribed_components={0, 1}).run(cyclic_load, time_points=time_points)
+        verify_von_mises_recovery(history, vm_history)
 
-
-
-if __name__ == "__main__":
-    main()
+    case 2:
+        plot_load_history(history)
+        plot_stress_response(history)
+        plot_plastic_strains(history)
+        plot_stress_strain(history)
+        plot_lateral_contraction(history)
