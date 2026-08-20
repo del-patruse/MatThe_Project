@@ -1,7 +1,6 @@
 #Teo Tassqa 16.07.26
 
 import numpy as np
-import torch 
 
 #this would be a struct in c# but dirty python doesn't like that
 class PlasticParams:

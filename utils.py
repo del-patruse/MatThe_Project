@@ -87,3 +87,22 @@ def quadratic_form_voigt6(v: np.ndarray, C_voigt: np.ndarray) -> float:
     # v : C : v for a 6-vector of pure tensor components and 6x6 Voigt matrix C.
     return float(v.dot(double_contraction_voigt6_4th_2nd(C_voigt, v)))
 
+
+
+
+
+class NewtonRaphsonSolver:
+    def __init__(self, tol=1e-6, max_iter=100, damping=1.0):
+        self.tol = tol
+        self.max_iter = max_iter
+        self.damping = damping
+    def solve(self, func, jacobian, x0) -> float:
+        x = x0
+        for i in range(self.max_iter):
+            f_val = func(x)
+            j_val = jacobian(x)
+            delta_x = np.linalg.solve(j_val, -f_val)
+            x += self.damping * delta_x
+            if np.linalg.norm(delta_x) < self.tol:
+                return x
+        raise ValueError("Newton-Raphson did not converge within the maximum number of iterations.")
